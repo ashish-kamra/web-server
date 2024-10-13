@@ -14,11 +14,10 @@ public class WebServer {
     private static final int QUEUE_CAPACITY = 100;
 
     private final ExecutorService executor;
-    private volatile boolean isRunning = true;
-
     private final ResponseWriter responseWriter;
     private final RequestHandler requestHandler;
     private final FileHandler fileHandler;
+    private volatile boolean isRunning = true;
 
     public WebServer() {
         this.executor = new ThreadPoolExecutor(
@@ -32,6 +31,11 @@ public class WebServer {
         this.responseWriter = new ResponseWriter();
         this.fileHandler = new FileHandler(responseWriter);
         this.requestHandler = new RequestHandler(responseWriter, fileHandler);
+    }
+
+    public static void main(String[] args) {
+        WebServer server = new WebServer();
+        server.start();
     }
 
     public void start() {
@@ -67,10 +71,5 @@ public class WebServer {
             executor.shutdownNow();
         }
         System.out.println("Server shut down");
-    }
-
-    public static void main(String[] args) {
-        WebServer server = new WebServer();
-        server.start();
     }
 }

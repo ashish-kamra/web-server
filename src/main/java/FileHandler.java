@@ -37,7 +37,7 @@ public class FileHandler {
         }
     }
 
-    public void handleFileRequest(PrintWriter writer, String filename, Socket clientSocket) throws IOException {
+    public void handleFileRequest(PrintWriter writer, String filename, Socket clientSocket, String contentEncoding) throws IOException {
         File file = new File(System.getProperty("user.dir") + "/files/" + filename);
         if (!file.exists() || !file.isFile()) {
             responseWriter.sendResponse(writer, HTTPConstants.NOT_FOUND_STATUS_CODE, HTTPConstants.NOT_FOUND_MESSAGE);
@@ -47,7 +47,9 @@ public class FileHandler {
         // Use PrintWriter to send headers
         writer.println(HTTPConstants.HTTP_VERSION + " " + HTTPConstants.OK_STATUS_CODE + " " + HTTPConstants.OK_MESSAGE);
         writer.println(HTTPConstants.CONTENT_TYPE_HEADER + HTTPConstants.CONTENT_TYPE_OCTET_STREAM);
-        writer.println(HTTPConstants.CONTENT_LENGTH_HEADER + file.length());
+        if (ContentEncoder.supportsEncoding(contentEncoding)) {
+            writer.println("Content-Encoding: " + contentEncoding);
+        }
         writer.println("Connection: close");
         writer.println();
         writer.flush();
@@ -55,14 +57,19 @@ public class FileHandler {
         // Switch to OutputStream for binary data (file content)
         try (FileInputStream fis = new FileInputStream(file);
              BufferedInputStream bis = new BufferedInputStream(fis);
-             OutputStream out = clientSocket.getOutputStream()) {
+             OutputStream outputStream = clientSocket.getOutputStream()) {
+
+            OutputStream encodedOutputStream = ContentEncoder.getEncodedOutputStream(outputStream, contentEncoding);
 
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = bis.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
+                encodedOutputStream.write(buffer, 0, bytesRead);
             }
-            out.flush();
+            encodedOutputStream.flush();
+            if (encodedOutputStream != outputStream) {
+                encodedOutputStream.close();
+            }
         }
     }
 }

@@ -1,7 +1,4 @@
 public final class HTTPConstants {
-    private HTTPConstants() {
-    }
-
     public static final String CONTENT_TYPE_HEADER = "Content-Type: ";
     public static final String CONTENT_LENGTH_HEADER = "Content-Length: ";
     public static final String CONTENT_TYPE_TEXT = "text/plain";
@@ -17,8 +14,9 @@ public final class HTTPConstants {
     public static final int NOT_FOUND_STATUS_CODE = 404;
     public static final String NOT_FOUND_MESSAGE = "Not Found";
     public static final String CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
-
     public static final String HTTP_POST = "POST";
     public static final int CREATED_STATUS_CODE = 201;
     public static final String CREATED_MESSAGE = "Created";
+    private HTTPConstants() {
+    }
 }

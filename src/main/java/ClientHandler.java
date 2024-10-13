@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +17,8 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true)) {
+             PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+             OutputStream outputStream = clientSocket.getOutputStream()) {
 
             String requestLine = reader.readLine();
             if (requestLine == null || requestLine.isEmpty()) {
@@ -72,7 +70,7 @@ public class ClientHandler implements Runnable {
 
             // Handle the request based on the path and method
             if ("GET".equalsIgnoreCase(method)) {
-                requestHandler.handleGetRequest(writer, path, headers, clientSocket);
+                requestHandler.handleGetRequest(writer, outputStream, path, headers, clientSocket);
             } else if ("POST".equalsIgnoreCase(method)) {
                 requestHandler.handlePostRequest(reader, writer, path, headers);
             } else {
